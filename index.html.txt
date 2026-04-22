@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Peugeot 2008 · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root {
+  --bg: #f2f2f7;
+  --bg-card: #ffffff;
+  --bg-elevated: #ffffff;
+  --fg: #1c1c1e;
+  --fg-secondary: #3c3c43;
+  --fg-tertiary: #8e8e93;
+  --fg-quaternary: #c7c7cc;
+  --separator: rgba(60, 60, 67, 0.12);
+  --accent: #0a84ff;
+  --accent-alt: #30d158;
+  --accent-warn: #ff9f0a;
+  --accent-bad: #ff3b30;
+  --accent-purple: #bf5af2;
+  --accent-pink: #ff375f;
+  --gradient-1: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+  --gradient-2: linear-gradient(135deg, #30d158 0%, #64d2ff 100%);
+  --gradient-3: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+  --gradient-4: linear-gradient(135deg, #bf5af2 0%, #ff375f 100%);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+}
+
+@media (prefers-color-scheme: dark) {
+:root {
+–bg: #000000;
+–bg-card: #1c1c1e;
+–bg-elevated: #2c2c2e;
+–fg: #ffffff;
+–fg-secondary: rgba(235, 235, 245, 0.85);
+–fg-tertiary: rgba(235, 235, 245, 0.6);
+–fg-quaternary: rgba(235, 235, 245, 0.3);
+–separator: rgba(84, 84, 88, 0.4);
+–shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+–shadow-md: 0 2px 8px rgba(0,0,0,0.3);
+–shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+}
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+font-family: ‘Inter Tight’, -apple-system, BlinkMacSystemFont, sans-serif;
+background: var(–bg);
+color: var(–fg);
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+text-rendering: optimizeLegibility;
+letter-spacing: -0.01em;
+overscroll-behavior: none;
+}
+
+body {
+min-height: 100vh;
+padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+
+.container {
+max-width: 1100px;
+margin: 0 auto;
+padding: 20px 16px 40px;
+}
+
+/* Header */
+.header {
+padding: 24px 4px 32px;
+position: relative;
+}
+
+.header-eyebrow {
+font-size: 11px;
+font-weight: 600;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: var(–fg-tertiary);
+margin-bottom: 8px;
+}
+
+.header-title {
+font-family: ‘Fraunces’, serif;
+font-weight: 400;
+font-size: 42px;
+letter-spacing: -0.03em;
+line-height: 1;
+margin-bottom: 6px;
+font-variation-settings: “opsz” 144, “SOFT” 50;
+}
+
+.header-title em {
+font-style: italic;
+font-weight: 300;
+color: var(–fg-tertiary);
+}
+
+.header-subtitle {
+font-size: 15px;
+color: var(–fg-tertiary);
+font-weight: 400;
+}
+
+/* Empty state */
+.empty-state {
+text-align: center;
+padding: 48px 24px;
+margin-top: 40px;
+}
+
+.empty-state-icon {
+font-size: 64px;
+margin-bottom: 20px;
+opacity: 0.3;
+}
+
+.empty-state-title {
+font-family: ‘Fraunces’, serif;
+font-size: 24px;
+font-weight: 400;
+margin-bottom: 8px;
+}
+
+.empty-state-text {
+color: var(–fg-tertiary);
+margin-bottom: 32px;
+font-size: 15px;
+max-width: 340px;
+margin-left: auto;
+margin-right: auto;
+line-height: 1.5;
+}
+
+/* Upload zone */
+.upload-zone {
+background: var(–bg-card);
+border: 2px dashed var(–separator);
+border-radius: var(–radius-lg);
+padding: 32px 24px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+position: relative;
+overflow: hidden;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+border-color: var(–accent);
+transform: translateY(-2px);
+box-shadow: var(–shadow-md);
+}
+
+.upload-zone.drag-over {
+background: rgba(10, 132, 255, 0.04);
+}
+
+.upload-icon {
+font-size: 32px;
+margin-bottom: 12px;
+}
+
+.upload-title {
+font-weight: 600;
+font-size: 17px;
+margin-bottom: 4px;
+color: var(–fg);
+}
+
+.upload-subtitle {
+font-size: 13px;
+color: var(–fg-tertiary);
+}
+
+.file-input { display: none; }
+
+/* Cards */
+.card {
+background: var(–bg-card);
+border-radius: var(–radius-lg);
+padding: 20px;
+margin-bottom: 16px;
+box-shadow: var(–shadow-sm);
+transition: box-shadow 0.3s ease;
+}
+
+.card-title {
+font-size: 13px;
+font-weight: 600;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+color: var(–fg-tertiary);
+margin-bottom: 14px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 8px;
+}
+
+/* Hero stats grid */
+.stats-hero {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+margin-bottom: 16px;
+}
+
+.stat-card {
+background: var(–bg-card);
+border-radius: var(–radius-lg);
+padding: 18px 16px;
+box-shadow: var(–shadow-sm);
+position: relative;
+overflow: hidden;
+transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.stat-card.accent-1::before,
+.stat-card.accent-2::before,
+.stat-card.accent-3::before,
+.stat-card.accent-4::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0;
+width: 4px;
+height: 100%;
+}
+.stat-card.accent-1::before { background: var(–gradient-1); }
+.stat-card.accent-2::before { background: var(–gradient-2); }
+.stat-card.accent-3::before { background: var(–gradient-3); }
+.stat-card.accent-4::before { background: var(–gradient-4); }
+
+.stat-label {
+font-size: 11px;
+font-weight: 600;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(–fg-tertiary);
+margin-bottom: 6px;
+}
+
+.stat-value {
+font-family: ‘Fraunces’, serif;
+font-size: 30px;
+font-weight: 500;
+letter-spacing: -0.02em;
+line-height: 1.1;
+font-variation-settings: “opsz” 72;
+}
+
+.stat-unit {
+font-size: 14px;
+font-family: ‘Inter Tight’, sans-serif;
+font-weight: 500;
+color: var(–fg-tertiary);
+margin-left: 4px;
+}
+
+.stat-delta {
+font-size: 12px;
+font-weight: 500;
+margin-top: 6px;
+display: inline-flex;
+align-items: center;
+gap: 3px;
+}
+.stat-delta.positive { color: var(–accent-alt); }
+.stat-delta.negative { color: var(–accent-bad); }
+.stat-delta.neutral { color: var(–fg-tertiary); }
+
+/* Chart container */
+.chart-wrap {
+position: relative;
+height: 240px;
+width: 100%;
+}
+
+/* Tabs */
+.segmented-control {
+display: flex;
+background: var(–bg);
+border-radius: var(–radius-sm);
+padding: 2px;
+margin-bottom: 16px;
+gap: 2px;
+}
+
+.segmented-control button {
+flex: 1;
+padding: 8px 12px;
+border: none;
+background: transparent;
+font-family: inherit;
+font-size: 13px;
+font-weight: 500;
+color: var(–fg-secondary);
+border-radius: 8px;
+cursor: pointer;
+transition: all 0.25s ease;
+}
+
+.segmented-control button.active {
+background: var(–bg-card);
+color: var(–fg);
+box-shadow: var(–shadow-sm);
+}
+
+/* Route analysis */
+.route-list {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+
+.route-item {
+display: grid;
+grid-template-columns: 1fr auto auto;
+gap: 12px;
+align-items: center;
+padding: 12px 14px;
+background: var(–bg);
+border-radius: var(–radius-sm);
+}
+
+.route-label {
+font-size: 14px;
+font-weight: 500;
+}
+
+.route-meta {
+font-size: 12px;
+color: var(–fg-tertiary);
+margin-top: 2px;
+}
+
+.route-bar-wrapper {
+min-width: 80px;
+}
+
+.route-bar {
+width: 100%;
+height: 6px;
+background: var(–separator);
+border-radius: 3px;
+overflow: hidden;
+}
+
+.route-bar-fill {
+height: 100%;
+border-radius: 3px;
+transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.route-value {
+font-family: ‘Fraunces’, serif;
+font-size: 16px;
+font-weight: 500;
+min-width: 60px;
+text-align: right;
+}
+
+.route-value small {
+font-family: ‘Inter Tight’, sans-serif;
+font-size: 10px;
+color: var(–fg-tertiary);
+font-weight: 500;
+display: block;
+line-height: 1;
+margin-top: 2px;
+}
+
+/* Frequent routes cards */
+.frequent-route-card {
+background: var(–bg);
+border-radius: var(–radius-md);
+padding: 16px;
+margin-bottom: 10px;
+transition: all 0.25s ease;
+position: relative;
+overflow: hidden;
+}
+
+.frequent-route-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 12px;
+gap: 12px;
+}
+
+.frequent-route-name {
+font-size: 15px;
+font-weight: 600;
+line-height: 1.3;
+}
+
+.frequent-route-sub {
+font-size: 12px;
+color: var(–fg-tertiary);
+margin-top: 2px;
+}
+
+.frequent-route-count {
+background: var(–accent);
+color: white;
+font-size: 11px;
+font-weight: 600;
+padding: 4px 10px;
+border-radius: 20px;
+white-space: nowrap;
+}
+
+.frequent-route-stats {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 12px;
+padding-top: 12px;
+border-top: 1px solid var(–separator);
+}
+
+.frequent-stat {
+text-align: center;
+}
+
+.frequent-stat-label {
+font-size: 10px;
+font-weight: 600;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+color: var(–fg-tertiary);
+margin-bottom: 4px;
+}
+
+.frequent-stat-value {
+font-family: ‘Fraunces’, serif;
+font-size: 18px;
+font-weight: 500;
+}
+
+.frequent-stat-unit {
+font-family: ‘Inter Tight’, sans-serif;
+font-size: 11px;
+color: var(–fg-tertiary);
+font-weight: 500;
+}
+
+.cost-breakdown {
+margin-top: 10px;
+padding-top: 10px;
+border-top: 1px solid var(–separator);
+font-size: 12px;
+color: var(–fg-tertiary);
+line-height: 1.5;
+}
+
+.cost-breakdown strong {
+color: var(–fg-secondary);
+font-weight: 600;
+}
+
+.route-tag {
+display: inline-block;
+font-size: 10px;
+font-weight: 600;
+padding: 3px 8px;
+border-radius: 10px;
+margin-left: 6px;
+letter-spacing: 0.02em;
+}
+
+.route-tag.diurno {
+background: rgba(255, 159, 10, 0.15);
+color: var(–accent-warn);
+}
+
+.route-tag.nocturno {
+background: rgba(94, 92, 230, 0.15);
+color: #5e5ce6;
+}
+
+/* Map */
+#map {
+height: 360px;
+border-radius: var(–radius-md);
+overflow: hidden;
+z-index: 0;
+}
+
+.map-legend {
+display: flex;
+gap: 12px;
+padding: 10px 4px 0;
+font-size: 11px;
+color: var(–fg-tertiary);
+flex-wrap: wrap;
+}
+
+.map-legend-item {
+display: flex;
+align-items: center;
+gap: 5px;
+}
+
+.map-legend-swatch {
+width: 16px;
+height: 3px;
+border-radius: 2px;
+}
+
+/* Goals section */
+.goal-card {
+background: var(–bg-card);
+border-radius: var(–radius-lg);
+padding: 20px;
+margin-bottom: 16px;
+box-shadow: var(–shadow-sm);
+}
+
+.goal-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 14px 0;
+border-bottom: 1px solid var(–separator);
+gap: 12px;
+}
+.goal-row:last-child { border-bottom: none; }
+
+.goal-label {
+font-size: 14px;
+color: var(–fg-secondary);
+}
+
+.goal-value {
+font-family: ‘Fraunces’, serif;
+font-size: 20px;
+font-weight: 500;
+text-align: right;
+}
+
+.goal-value.positive { color: var(–accent-alt); }
+.goal-value.negative { color: var(–accent-bad); }
+
+/* Actions */
+.actions {
+display: flex;
+gap: 8px;
+margin-top: 16px;
+margin-bottom: 20px;
+}
+
+.btn {
+flex: 1;
+padding: 12px 16px;
+border: none;
+background: var(–bg-card);
+color: var(–fg);
+font-family: inherit;
+font-size: 14px;
+font-weight: 500;
+border-radius: var(–radius-sm);
+cursor: pointer;
+transition: all 0.2s ease;
+box-shadow: var(–shadow-sm);
+}
+
+.btn:hover { transform: translateY(-1px); box-shadow: var(–shadow-md); }
+.btn:active { transform: translateY(0); }
+
+.btn.btn-primary {
+background: var(–accent);
+color: white;
+}
+
+.btn.btn-danger {
+color: var(–accent-bad);
+}
+
+/* Insight boxes */
+.insight {
+padding: 14px 16px;
+border-radius: var(–radius-sm);
+margin-bottom: 10px;
+font-size: 13px;
+line-height: 1.5;
+border-left: 3px solid;
+}
+
+.insight.good { background: rgba(48, 209, 88, 0.08); border-color: var(–accent-alt); }
+.insight.warn { background: rgba(255, 159, 10, 0.08); border-color: var(–accent-warn); }
+.insight.bad { background: rgba(255, 59, 48, 0.08); border-color: var(–accent-bad); }
+.insight.info { background: rgba(10, 132, 255, 0.08); border-color: var(–accent); }
+
+.insight strong { font-weight: 600; }
+
+/* Section header */
+.section-title {
+font-family: ‘Fraunces’, serif;
+font-size: 22px;
+font-weight: 400;
+letter-spacing: -0.02em;
+margin: 28px 4px 14px;
+display: flex;
+align-items: baseline;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.section-title .count {
+font-family: ‘Inter Tight’, sans-serif;
+font-size: 12px;
+color: var(–fg-tertiary);
+font-weight: 500;
+letter-spacing: 0;
+}
+
+/* Time period chips */
+.chip-row {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-bottom: 14px;
+}
+
+.chip {
+padding: 6px 12px;
+background: var(–bg);
+border-radius: 20px;
+font-size: 12px;
+font-weight: 500;
+color: var(–fg-secondary);
+display: inline-flex;
+align-items: center;
+gap: 6px;
+}
+
+.chip-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+}
+
+/* Loading */
+.loading-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.5);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 2000;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.3s ease;
+}
+
+.loading-overlay.visible {
+opacity: 1;
+pointer-events: all;
+}
+
+.loading-box {
+background: var(–bg-card);
+padding: 24px 32px;
+border-radius: var(–radius-md);
+text-align: center;
+font-size: 14px;
+color: var(–fg);
+font-weight: 500;
+}
+
+.spinner {
+width: 28px;
+height: 28px;
+border: 3px solid var(–separator);
+border-top-color: var(–accent);
+border-radius: 50%;
+animation: spin 0.8s linear infinite;
+margin: 0 auto 12px;
+}
+
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(12px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in > * {
+animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.animate-in > *:nth-child(1) { animation-delay: 0.05s; }
+.animate-in > *:nth-child(2) { animation-delay: 0.1s; }
+.animate-in > *:nth-child(3) { animation-delay: 0.15s; }
+.animate-in > *:nth-child(4) { animation-delay: 0.2s; }
+.animate-in > *:nth-child(5) { animation-delay: 0.25s; }
+.animate-in > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* Hide/show */
+.hidden { display: none !important; }
+
+/* Toast */
+.toast {
+position: fixed;
+bottom: 24px;
+left: 50%;
+transform: translateX(-50%) translateY(100px);
+background: var(–fg);
+color: var(–bg);
+padding: 12px 20px;
+border-radius: 24px;
+font-size: 14px;
+font-weight: 500;
+box-shadow: var(–shadow-lg);
+transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+z-index: 1000;
+max-width: 90%;
+}
+
+.toast.visible {
+transform: translateX(-50%) translateY(0);
+}
+
+/* Small screens */
+@media (max-width: 420px) {
+.header-title { font-size: 36px; }
+.stat-value { font-size: 26px; }
+.container { padding: 16px 12px 32px; }
+.frequent-stat-value { font-size: 16px; }
+}
+
+/* Large screens */
+@media (min-width: 768px) {
+.stats-hero {
+grid-template-columns: repeat(4, 1fr);
+}
+.main-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 16px;
+}
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="header-eyebrow">Peugeot 2008 Allure Hybrid</div>
+    <h1 class="header-title">Rendimiento <em>en movimiento</em></h1>
+    <div class="header-subtitle" id="headerSubtitle">Cargá tu CSV de MyPeugeot para comenzar</div>
+  </header>
+
+  <!-- Upload zone -->
+
+  <div class="upload-zone" id="uploadZone">
+    <div class="upload-icon">⇪</div>
+    <div class="upload-title">Cargar archivo CSV</div>
+    <div class="upload-subtitle">Arrastrá el archivo de MyPeugeot o tocá aquí</div>
+    <input type="file" id="fileInput" class="file-input" accept=".csv">
+  </div>
+
+  <!-- Empty state -->
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-state-icon">⊡</div>
+    <div class="empty-state-title">Tu dashboard esperando</div>
+    <div class="empty-state-text">Cada vez que cargues un CSV, se suma al histórico. Los gráficos se actualizan automáticamente y los datos quedan guardados en este dispositivo.</div>
+  </div>
+
+  <!-- Dashboard content -->
+
+  <div id="dashboard" class="hidden animate-in">
+
+```
+<!-- Hero stats -->
+<div class="stats-hero">
+  <div class="stat-card accent-1">
+    <div class="stat-label">Rendimiento</div>
+    <div class="stat-value"><span id="statKmL">—</span><span class="stat-unit">km/l</span></div>
+    <div class="stat-delta neutral" id="statKmLDelta"></div>
+  </div>
+  <div class="stat-card accent-2">
+    <div class="stat-label">Consumo</div>
+    <div class="stat-value"><span id="statConsumo">—</span><span class="stat-unit">l/100km</span></div>
+    <div class="stat-delta neutral" id="statConsumoDelta"></div>
+  </div>
+  <div class="stat-card accent-3">
+    <div class="stat-label">Kilómetros</div>
+    <div class="stat-value"><span id="statKm">—</span><span class="stat-unit">km</span></div>
+    <div class="stat-delta neutral" id="statKmDelta"></div>
+  </div>
+  <div class="stat-card accent-4">
+    <div class="stat-label">Gasto</div>
+    <div class="stat-value">$<span id="statGasto">—</span></div>
+    <div class="stat-delta neutral" id="statGastoDelta"></div>
+  </div>
+</div>
+
+<div class="main-grid">
+  <!-- Evolution chart -->
+  <div class="card">
+    <div class="card-title">
+      <span>Evolución temporal</span>
+      <div class="segmented-control" style="margin-bottom:0;padding:1px;">
+        <button class="active" data-metric="kml">km/l</button>
+        <button data-metric="consumo">l/100km</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="evolutionChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Route breakdown -->
+  <div class="card">
+    <div class="card-title">Rendimiento por tipo de viaje</div>
+    <div class="route-list" id="routeList"></div>
+  </div>
+</div>
+
+<!-- Frequent routes -->
+<h2 class="section-title">Mis rutas frecuentes <span class="count" id="frequentCount"></span></h2>
+<div class="card">
+  <div class="chip-row">
+    <span class="chip"><span class="chip-dot" style="background:var(--accent-warn)"></span>Diurno (6:00 – 20:00)</span>
+    <span class="chip"><span class="chip-dot" style="background:#5e5ce6"></span>Nocturno (20:00 – 6:00)</span>
+  </div>
+  <div id="frequentRoutes"></div>
+</div>
+
+<div class="main-grid">
+  <!-- Period comparison -->
+  <div class="card">
+    <div class="card-title">Comparación de períodos</div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="periodChart"></canvas>
+    </div>
+    <div id="periodInsights" style="margin-top:14px;"></div>
+  </div>
+
+  <!-- Goals -->
+  <div class="goal-card">
+    <div class="card-title">Metas y proyecciones</div>
+    <div class="goal-row">
+      <span class="goal-label">Meta de rendimiento</span>
+      <span class="goal-value">17,2 <small style="font-size:12px;color:var(--fg-tertiary)">km/l</small></span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Tu rendimiento actual</span>
+      <span class="goal-value" id="goalCurrentKmL">— km/l</span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Ahorro potencial mensual</span>
+      <span class="goal-value positive" id="goalSaving">$—</span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Proyección anual de gasto</span>
+      <span class="goal-value" id="goalYearly">$—</span>
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<h2 class="section-title">Mapa de rutas <span class="count" id="mapCount"></span></h2>
+<div class="card" style="padding:10px;">
+  <div id="map"></div>
+  <div class="map-legend">
+    <div class="map-legend-item"><div class="map-legend-swatch" style="background:var(--accent)"></div>Ruta frecuente</div>
+    <div class="map-legend-item"><div class="map-legend-swatch" style="background:var(--accent-warn)"></div>Ruta ocasional</div>
+    <div class="map-legend-item"><div class="map-legend-swatch" style="background:var(--accent-bad);border-radius:50%;height:10px;width:10px;"></div>Peaje detectado</div>
+  </div>
+</div>
+
+<!-- Insights -->
+<h2 class="section-title">Observaciones</h2>
+<div class="card">
+  <div id="insights"></div>
+</div>
+
+<!-- Data management -->
+<h2 class="section-title">Datos</h2>
+<div class="card">
+  <div class="goal-row">
+    <span class="goal-label">Total de viajes registrados</span>
+    <span class="goal-value" id="totalTrips">—</span>
+  </div>
+  <div class="goal-row">
+    <span class="goal-label">CSVs cargados</span>
+    <span class="goal-value" id="totalUploads">—</span>
+  </div>
+  <div class="goal-row">
+    <span class="goal-label">Rango de fechas</span>
+    <span class="goal-value" style="font-size:13px;" id="dateRange">—</span>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn" id="btnExport">Exportar histórico</button>
+  <button class="btn" id="btnReloadMap">Recargar rutas reales</button>
+  <button class="btn btn-danger" id="btnClear">Limpiar</button>
+</div>
+```
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div id="loadingText">Cargando rutas reales...</div>
+  </div>
+</div>
+
+<script>
+// ====== CONFIGURATION ======
+
+// Tarifas de peajes 2026 (CLP para autos/camionetas)
+// Fuente: MOP, Autopista Los Libertadores, Nueva Aconcagua
+const TOLLS = [
+  // Autopista Los Libertadores (Ruta 57) - San Felipe ↔ Santiago
+  { name: 'Peaje Chacabuco', lat: -33.0302, lon: -70.6915, tarifa: 3100, tipo: 'troncal' },
+  { name: 'Peaje Las Canteras', lat: -33.1850, lon: -70.6940, tarifa: 1340, tipo: 'troncal' },
+  { name: 'Lateral San Luis', lat: -33.1180, lon: -70.7050, tarifa: 900, tipo: 'lateral' },
+  { name: 'Lateral Chicureo', lat: -33.2470, lon: -70.6780, tarifa: 900, tipo: 'lateral' },
+  // Pórticos urbanos Autopista Central / Vespucio Norte (ida aprox)
+  { name: 'Pórtico Pedro Fontova', lat: -33.3540, lon: -70.6890, tarifa: 300, tipo: 'portico' },
+  { name: 'Pórtico Vespucio Norte', lat: -33.3700, lon: -70.6900, tarifa: 450, tipo: 'portico' },
+  { name: 'Pórtico Río Mapocho', lat: -33.4200, lon: -70.6850, tarifa: 410, tipo: 'portico' }
+];
+
+const STORAGE_KEY = 'peugeot_trips_v2';
+const ROUTES_CACHE_KEY = 'peugeot_routes_cache_v2';
+
+// ====== DATA LAYER ======
+
+function loadTrips() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (e) { return []; }
+}
+
+function saveTrips(trips) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
+}
+
+function loadRoutesCache() {
+  try {
+    const raw = localStorage.getItem(ROUTES_CACHE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch (e) { return {}; }
+}
+
+function saveRoutesCache(cache) {
+  try {
+    localStorage.setItem(ROUTES_CACHE_KEY, JSON.stringify(cache));
+  } catch (e) {
+    // Cache might be too big, clear and retry with just the new one
+    localStorage.removeItem(ROUTES_CACHE_KEY);
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(';').map(h => h.trim());
+  const trips = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cells = lines[i].split(';');
+    if (cells.length < headers.length) continue;
+    const row = {};
+    headers.forEach((h, idx) => row[h] = (cells[idx] || '').trim());
+    trips.push(row);
+  }
+  return trips;
+}
+
+function parseTime12(str) {
+  // "5:11 p.m." or "1:48 a.m." → return hour as number 0-23
+  if (!str) return null;
+  const clean = str.replace(/\./g, '').toLowerCase().trim();
+  const match = clean.match(/(\d+):(\d+)\s*(am|pm)/);
+  if (!match) return null;
+  let h = parseInt(match[1]);
+  const m = parseInt(match[2]);
+  const meridiem = match[3];
+  if (meridiem === 'pm' && h !== 12) h += 12;
+  if (meridiem === 'am' && h === 12) h = 0;
+  return h + m / 60;
+}
+
+function normalizeTrip(raw) {
+  const fecha = raw['fecha'] || '';
+  const [d, m, y] = fecha.split('-');
+  const isoDate = `${y}-${m}-${d}`;
+  
+  const horaSalida = raw['Hora de salida'] || '';
+  const horaNum = parseTime12(horaSalida);
+  const dist = parseFloat(raw['distancia (km)'] || 0);
+  const consumo = parseFloat(raw['Consumo medio (l/100km)'] || 0);
+  const km = parseInt(raw['Kilometraje en el contador (km)'] || 0);
+  const precio = parseFloat(raw['precio del carburante (CLP/l)'] || 0);
+  const costo = parseFloat(raw['costo (CLP)'] || 0);
+  
+  const parseCoord = (str) => {
+    if (!str) return null;
+    const parts = str.split(',').map(s => parseFloat(s.trim()));
+    if (parts.length !== 2 || isNaN(parts[0])) return null;
+    return parts;
+  };
+  
+  // Daytime: 6am-8pm, Nighttime: 8pm-6am
+  const esNocturno = horaNum !== null && (horaNum >= 20 || horaNum < 6);
+  
+  return {
+    id: `${isoDate}_${horaSalida}_${raw['dirección de destino']}`,
+    fecha: isoDate,
+    horaSalida: horaSalida,
+    horaLlegada: raw['hora de llegada'] || '',
+    horaNum: horaNum,
+    esNocturno: esNocturno,
+    duracion: raw['duración (Hr:min)'] || '',
+    origen: parseCoord(raw['Dirección de salida']),
+    destino: parseCoord(raw['dirección de destino']),
+    distancia: dist,
+    odometro: km,
+    consumo: consumo,
+    precio: precio,
+    costo: costo,
+    kml: consumo > 0 ? 100 / consumo : 0,
+    timestamp: new Date(isoDate + 'T12:00:00').getTime()
+  };
+}
+
+function mergeTrips(existing, newTrips) {
+  const map = new Map();
+  existing.forEach(t => map.set(t.id, t));
+  newTrips.forEach(t => map.set(t.id, t));
+  return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
+}
+
+// ====== ROUTE FREQUENCY DETECTION ======
+
+// Haversine distance in km
+function distBetween(a, b) {
+  if (!a || !b) return Infinity;
+  const R = 6371;
+  const dLat = (b[0] - a[0]) * Math.PI / 180;
+  const dLon = (b[1] - a[1]) * Math.PI / 180;
+  const lat1 = a[0] * Math.PI / 180;
+  const lat2 = b[0] * Math.PI / 180;
+  const x = Math.sin(dLat/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+// Identify if two trips share the same "essential" route
+// (allows some GPS imprecision)
+function sameRoute(t1, t2, tolerance = 1.5) {
+  if (!t1.origen || !t1.destino || !t2.origen || !t2.destino) return false;
+  // Check forward direction
+  const forward = distBetween(t1.origen, t2.origen) < tolerance && 
+                  distBetween(t1.destino, t2.destino) < tolerance;
+  // Also allow reverse (ida y vuelta)
+  const reverse = distBetween(t1.origen, t2.destino) < tolerance && 
+                  distBetween(t1.destino, t2.origen) < tolerance;
+  return forward || reverse;
+}
+
+// Geographic name inference based on known coordinates
+function inferLocation(coord) {
+  if (!coord) return 'Desconocido';
+  const [lat, lon] = coord;
+  // San Felipe area
+  if (lat > -32.80 && lat < -32.72 && lon > -70.77 && lon < -70.68) return 'San Felipe';
+  // Los Andes area
+  if (lat > -32.86 && lat < -32.80 && lon > -70.62 && lon < -70.55) return 'Los Andes';
+  // Santiago RM (broader)
+  if (lat > -33.55 && lat < -33.30 && lon > -70.80 && lon < -70.50) {
+    if (lat > -33.38 && lon < -70.65) return 'Santiago Norte';
+    if (lat < -33.42) return 'Santiago Sur';
+    return 'Santiago';
+  }
+  return `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+}
+
+function detectFrequentRoutes(trips) {
+  // Group trips by similar origin-destination
+  const clusters = [];
+  
+  trips.filter(t => t.origen && t.destino && t.distancia > 0.5).forEach(trip => {
+    let matched = false;
+    for (const cluster of clusters) {
+      if (sameRoute(cluster.sample, trip)) {
+        cluster.trips.push(trip);
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      clusters.push({ sample: trip, trips: [trip] });
+    }
+  });
+  
+  // Only keep clusters with 2+ trips
+  const frequent = clusters
+    .filter(c => c.trips.length >= 2)
+    .sort((a, b) => b.trips.length - a.trips.length);
+  
+  return frequent.map(c => {
+    const ts = c.trips;
+    const validTs = ts.filter(t => t.consumo > 0);
+    const origen = inferLocation(c.sample.origen);
+    const destino = inferLocation(c.sample.destino);
+    
+    const avgConsumo = validTs.length ? 
+      validTs.reduce((s, t) => s + t.consumo, 0) / validTs.length : 0;
+    const avgDist = ts.reduce((s, t) => s + t.distancia, 0) / ts.length;
+    const avgCost = ts.reduce((s, t) => s + t.costo, 0) / ts.length;
+    
+    // Diurno / Nocturno split
+    const diurnos = ts.filter(t => !t.esNocturno);
+    const nocturnos = ts.filter(t => t.esNocturno);
+    
+    const diurnoStats = diurnos.length ? {
+      count: diurnos.length,
+      avgConsumo: diurnos.filter(t => t.consumo > 0).reduce((s, t) => s + t.consumo, 0) / Math.max(1, diurnos.filter(t => t.consumo > 0).length),
+      avgCost: diurnos.reduce((s, t) => s + t.costo, 0) / diurnos.length
+    } : null;
+    
+    const nocturnoStats = nocturnos.length ? {
+      count: nocturnos.length,
+      avgConsumo: nocturnos.filter(t => t.consumo > 0).reduce((s, t) => s + t.consumo, 0) / Math.max(1, nocturnos.filter(t => t.consumo > 0).length),
+      avgCost: nocturnos.reduce((s, t) => s + t.costo, 0) / nocturnos.length
+    } : null;
+    
+    // Tolls detection
+    const tolls = detectTolls(c.sample, avgDist);
+    const tollCost = tolls.reduce((s, t) => s + t.tarifa, 0);
+    
+    return {
+      origen, destino,
+      count: ts.length,
+      sample: c.sample,
+      trips: ts,
+      avgDistancia: avgDist,
+      avgConsumo: avgConsumo,
+      avgKmL: avgConsumo > 0 ? 100 / avgConsumo : 0,
+      avgCostFuel: avgCost,
+      tolls: tolls,
+      tollCost: tollCost,
+      totalAvgCost: avgCost + tollCost,
+      diurno: diurnoStats,
+      nocturno: nocturnoStats
+    };
+  });
+}
+
+function detectTolls(trip, distance) {
+  if (!trip.origen || !trip.destino) return [];
+  
+  // Only check tolls if trip is long enough (>30 km)
+  if (distance < 30) return [];
+  
+  // Simple heuristic: if trip goes between SF/LA area and Santiago area,
+  // apply known tolls
+  const origenName = inferLocation(trip.origen);
+  const destinoName = inferLocation(trip.destino);
+  
+  const isNorth = n => n.includes('San Felipe') || n.includes('Los Andes');
+  const isSantiago = n => n.includes('Santiago');
+  
+  const crossesChacabuco = (isNorth(origenName) && isSantiago(destinoName)) ||
+                           (isSantiago(origenName) && isNorth(destinoName));
+  
+  if (!crossesChacabuco) return [];
+  
+  // Standard route: Chacabuco troncal + some urban portals
+  return [
+    { name: 'Chacabuco (troncal)', tarifa: 3100 },
+    { name: 'Las Canteras (troncal)', tarifa: 1340 },
+    { name: 'Pórticos urbanos Santiago', tarifa: 1200 }
+  ];
+}
+
+// ====== OSRM ROUTING ======
+
+async function fetchRoute(origen, destino) {
+  const key = `${origen[0].toFixed(4)},${origen[1].toFixed(4)}:${destino[0].toFixed(4)},${destino[1].toFixed(4)}`;
+  const cache = loadRoutesCache();
+  if (cache[key]) return cache[key];
+  
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${origen[1]},${origen[0]};${destino[1]},${destino[0]}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('OSRM failed');
+    const data = await res.json();
+    if (!data.routes || !data.routes.length) throw new Error('No routes');
+    
+    const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+    const distance = data.routes[0].distance / 1000; // km
+    const duration = data.routes[0].duration / 60; // min
+    
+    const result = { coords, distance, duration };
+    cache[key] = result;
+    saveRoutesCache(cache);
+    return result;
+  } catch (e) {
+    console.warn('OSRM fetch failed, using straight line:', e);
+    return { coords: [origen, destino], distance: null, duration: null, fallback: true };
+  }
+}
+
+// ====== ANALYSIS ======
+
+function analyzeTrips(trips) {
+  if (!trips.length) return null;
+  
+  const valid = trips.filter(t => t.consumo > 0);
+  const totalKm = trips.reduce((s, t) => s + t.distancia, 0);
+  const totalCost = trips.reduce((s, t) => s + t.costo, 0);
+  const avgConsumo = valid.reduce((s, t) => s + t.consumo, 0) / (valid.length || 1);
+  const avgKmL = avgConsumo > 0 ? 100 / avgConsumo : 0;
+  
+  const segments = {
+    mini: trips.filter(t => t.distancia < 2),
+    corto: trips.filter(t => t.distancia >= 2 && t.distancia <= 10),
+    medio: trips.filter(t => t.distancia > 10 && t.distancia <= 30),
+    largo: trips.filter(t => t.distancia > 30)
+  };
+  
+  const segmentStats = {};
+  for (const [key, ts] of Object.entries(segments)) {
+    const validTs = ts.filter(t => t.consumo > 0);
+    if (!validTs.length) {
+      segmentStats[key] = { count: 0, avgConsumo: 0, avgKmL: 0, km: 0, cost: 0 };
+      continue;
+    }
+    const avg = validTs.reduce((s, t) => s + t.consumo, 0) / validTs.length;
+    segmentStats[key] = {
+      count: ts.length,
+      avgConsumo: avg,
+      avgKmL: avg > 0 ? 100 / avg : 0,
+      km: ts.reduce((s, t) => s + t.distancia, 0),
+      cost: ts.reduce((s, t) => s + t.costo, 0)
+    };
+  }
+  
+  // Weekly aggregation
+  const byWeek = {};
+  trips.forEach(t => {
+    const d = new Date(t.fecha);
+    const firstJan = new Date(d.getFullYear(), 0, 1);
+    const days = Math.floor((d - firstJan) / 86400000);
+    const week = Math.ceil((days + firstJan.getDay() + 1) / 7);
+    const key = `${d.getFullYear()}-W${String(week).padStart(2, '0')}`;
+    if (!byWeek[key]) byWeek[key] = { trips: [], date: d };
+    byWeek[key].trips.push(t);
+  });
+  
+  const weekly = Object.entries(byWeek).map(([key, w]) => {
+    const v = w.trips.filter(t => t.consumo > 0);
+    const avg = v.length ? v.reduce((s, t) => s + t.consumo, 0) / v.length : 0;
+    return {
+      label: key,
+      date: w.date,
+      trips: w.trips.length,
+      km: w.trips.reduce((s, t) => s + t.distancia, 0),
+      consumo: avg,
+      kml: avg > 0 ? 100 / avg : 0,
+      cost: w.trips.reduce((s, t) => s + t.costo, 0)
+    };
+  }).sort((a, b) => a.date - b.date);
+  
+  // Period comparison
+  const sorted = [...trips].sort((a, b) => b.timestamp - a.timestamp);
+  const latestDate = sorted[0].timestamp;
+  const lastWeek = trips.filter(t => latestDate - t.timestamp <= 7 * 86400000 && t.consumo > 0);
+  const prevWeek = trips.filter(t => {
+    const diff = latestDate - t.timestamp;
+    return diff > 7 * 86400000 && diff <= 14 * 86400000 && t.consumo > 0;
+  });
+  
+  const avgFromList = (list) => list.length ? list.reduce((s, t) => s + t.consumo, 0) / list.length : 0;
+  
+  // Frequent routes
+  const frequent = detectFrequentRoutes(trips);
+  
+  return {
+    totalTrips: trips.length,
+    totalKm,
+    totalCost,
+    avgConsumo,
+    avgKmL,
+    segments: segmentStats,
+    weekly,
+    frequent,
+    lastWeek: {
+      count: lastWeek.length,
+      consumo: avgFromList(lastWeek),
+      km: lastWeek.reduce((s, t) => s + t.distancia, 0),
+      cost: lastWeek.reduce((s, t) => s + t.costo, 0)
+    },
+    prevWeek: {
+      count: prevWeek.length,
+      consumo: avgFromList(prevWeek),
+      km: prevWeek.reduce((s, t) => s + t.distancia, 0),
+      cost: prevWeek.reduce((s, t) => s + t.costo, 0)
+    },
+    dateRange: {
+      from: trips[0].fecha,
+      to: trips[trips.length - 1].fecha
+    }
+  };
+}
+
+// ====== RENDER ======
+
+let evolutionChart = null;
+let periodChart = null;
+let map = null;
+let routeLayer = null;
+
+function formatNumber(n, decimals = 1) {
+  if (!n && n !== 0) return '—';
+  return n.toFixed(decimals).replace('.', ',');
+}
+
+function formatMoney(n) {
+  if (!n) return '0';
+  return Math.round(n).toLocaleString('es-CL');
+}
+
+function render(analysis, trips) {
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  
+  const uploads = parseInt(localStorage.getItem(STORAGE_KEY + '_uploads') || '0');
+  document.getElementById('headerSubtitle').textContent = 
+    `${analysis.totalTrips} viajes · ${analysis.dateRange.from} a ${analysis.dateRange.to}`;
+  
+  // Hero stats
+  document.getElementById('statKmL').textContent = formatNumber(analysis.avgKmL);
+  document.getElementById('statConsumo').textContent = formatNumber(analysis.avgConsumo);
+  document.getElementById('statKm').textContent = formatNumber(analysis.totalKm, 0);
+  document.getElementById('statGasto').textContent = formatMoney(analysis.totalCost);
+  
+  // Deltas
+  const kmlLast = analysis.lastWeek.consumo > 0 ? 100 / analysis.lastWeek.consumo : 0;
+  const kmlPrev = analysis.prevWeek.consumo > 0 ? 100 / analysis.prevWeek.consumo : 0;
+  
+  if (kmlPrev > 0) {
+    const deltaKmL = kmlLast - kmlPrev;
+    const deltaPct = (deltaKmL / kmlPrev) * 100;
+    const el = document.getElementById('statKmLDelta');
+    el.textContent = `${deltaKmL >= 0 ? '↑' : '↓'} ${Math.abs(deltaPct).toFixed(1)}% vs semana anterior`;
+    el.className = `stat-delta ${deltaKmL >= 0 ? 'positive' : 'negative'}`;
+  }
+  
+  if (analysis.prevWeek.consumo > 0) {
+    const deltaCons = analysis.lastWeek.consumo - analysis.prevWeek.consumo;
+    const deltaPctCons = (deltaCons / analysis.prevWeek.consumo) * 100;
+    const el = document.getElementById('statConsumoDelta');
+    el.textContent = `${deltaCons >= 0 ? '↑' : '↓'} ${Math.abs(deltaPctCons).toFixed(1)}% vs semana anterior`;
+    el.className = `stat-delta ${deltaCons <= 0 ? 'positive' : 'negative'}`;
+  }
+  
+  const el3 = document.getElementById('statKmDelta');
+  el3.textContent = `${analysis.lastWeek.km.toFixed(0)} km últimos 7 días`;
+  el3.className = 'stat-delta neutral';
+  
+  const el4 = document.getElementById('statGastoDelta');
+  el4.textContent = `$${formatMoney(analysis.lastWeek.cost)} últimos 7 días`;
+  el4.className = 'stat-delta neutral';
+  
+  renderEvolutionChart(analysis, 'kml');
+  renderRoutes(analysis.segments);
+  renderFrequentRoutes(analysis.frequent);
+  renderPeriodChart(analysis);
+  renderPeriodInsights(analysis);
+  
+  // Goals
+  document.getElementById('goalCurrentKmL').innerHTML = 
+    `${formatNumber(analysis.avgKmL)} <small style="font-size:12px;color:var(--fg-tertiary)">km/l</small>`;
+  
+  const targetConsumo = 5.8;
+  const savingPerKm = (analysis.avgConsumo - targetConsumo) / 100 * (trips[trips.length-1].precio || 1600);
+  const daysInData = Math.max(1, (new Date(analysis.dateRange.to) - new Date(analysis.dateRange.from)) / 86400000 + 1);
+  const kmPerMonth = (analysis.totalKm / daysInData) * 30;
+  const savingMonthly = Math.max(0, savingPerKm * kmPerMonth);
+  const yearlyTotal = (analysis.totalCost / analysis.totalKm) * kmPerMonth * 12;
+  
+  document.getElementById('goalSaving').textContent = `$${formatMoney(savingMonthly)}`;
+  document.getElementById('goalYearly').textContent = `$${formatMoney(yearlyTotal)}`;
+  
+  renderMap(trips, analysis.frequent);
+  document.getElementById('mapCount').textContent = `${trips.filter(t => t.origen && t.destino).length} viajes`;
+  document.getElementById('frequentCount').textContent = `${analysis.frequent.length} identificadas`;
+  
+  renderInsights(analysis);
+  
+  document.getElementById('totalTrips').textContent = analysis.totalTrips;
+  document.getElementById('totalUploads').textContent = uploads;
+  document.getElementById('dateRange').textContent = `${analysis.dateRange.from} → ${analysis.dateRange.to}`;
+}
+
+function renderEvolutionChart(analysis, metric) {
+  const ctx = document.getElementById('evolutionChart').getContext('2d');
+  if (evolutionChart) evolutionChart.destroy();
+  
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const textColor = isDark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const gridColor = isDark ? 'rgba(84,84,88,0.3)' : 'rgba(60,60,67,0.1)';
+  
+  const labels = analysis.weekly.map(w => w.label.replace(/^\d{4}-/, ''));
+  const data = metric === 'kml' 
+    ? analysis.weekly.map(w => w.kml)
+    : analysis.weekly.map(w => w.consumo);
+  
+  const unit = metric === 'kml' ? 'km/l' : 'l/100km';
+  
+  evolutionChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: unit,
+        data,
+        borderColor: '#0a84ff',
+        backgroundColor: (context) => {
+          const chart = context.chart;
+          const {ctx, chartArea} = chart;
+          if (!chartArea) return null;
+          const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          gradient.addColorStop(0, 'rgba(10,132,255,0.25)');
+          gradient.addColorStop(1, 'rgba(10,132,255,0)');
+          return gradient;
+        },
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#0a84ff',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2.5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: isDark ? 'rgba(28,28,30,0.95)' : 'rgba(255,255,255,0.98)',
+          titleColor: isDark ? '#fff' : '#000',
+          bodyColor: isDark ? 'rgba(235,235,245,0.85)' : 'rgba(60,60,67,0.85)',
+          borderColor: gridColor,
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 10,
+          displayColors: false,
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(2)} ${unit}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor, font: { size: 11, family: 'Inter Tight' } }
+        },
+        y: {
+          grid: { color: gridColor, drawBorder: false },
+          ticks: { 
+            color: textColor, 
+            font: { size: 11, family: 'Inter Tight' },
+            callback: (v) => v.toFixed(1)
+          }
+        }
+      },
+      interaction: { intersect: false, mode: 'index' }
+    }
+  });
+  
+  document.querySelectorAll('.segmented-control [data-metric]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.metric === metric);
+    btn.onclick = () => renderEvolutionChart(analysis, btn.dataset.metric);
+  });
+}
+
+function renderRoutes(segments) {
+  const labels = {
+    mini: { name: 'Mini', desc: 'menos de 2 km' },
+    corto: { name: 'Corto', desc: '2 a 10 km' },
+    medio: { name: 'Medio', desc: '10 a 30 km' },
+    largo: { name: 'Largo', desc: 'más de 30 km' }
+  };
+  
+  const maxKml = Math.max(...Object.values(segments).map(s => s.avgKmL).filter(v => v > 0));
+  
+  const html = Object.entries(segments).map(([key, s]) => {
+    const info = labels[key];
+    if (s.count === 0) return '';
+    const pct = maxKml > 0 ? (s.avgKmL / maxKml * 100) : 0;
+    const color = s.avgKmL >= 17 ? 'var(--accent-alt)' : s.avgKmL >= 14 ? 'var(--accent)' : s.avgKmL >= 11 ? 'var(--accent-warn)' : 'var(--accent-bad)';
+    return `
+      <div class="route-item">
+        <div>
+          <div class="route-label">${info.name}</div>
+          <div class="route-meta">${info.desc} · ${s.count} viajes · ${s.km.toFixed(0)} km</div>
+        </div>
+        <div class="route-bar-wrapper">
+          <div class="route-bar">
+            <div class="route-bar-fill" style="width:${pct}%;background:${color};"></div>
+          </div>
+        </div>
+        <div class="route-value">${formatNumber(s.avgKmL)}<small>km/l</small></div>
+      </div>
+    `;
+  }).join('');
+  
+  document.getElementById('routeList').innerHTML = html;
+}
+
+function renderFrequentRoutes(frequent) {
+  const container = document.getElementById('frequentRoutes');
+  
+  if (!frequent.length) {
+    container.innerHTML = '<div class="insight info">Todavía no tenés rutas repetidas. A medida que cargues más viajes, las rutas frecuentes aparecerán acá.</div>';
+    return;
+  }
+  
+  const html = frequent.slice(0, 5).map(r => {
+    const diurnoTag = r.diurno ? 
+      `<span class="route-tag diurno">${r.diurno.count} diurno${r.diurno.count > 1 ? 's' : ''}</span>` : '';
+    const nocturnoTag = r.nocturno ? 
+      `<span class="route-tag nocturno">${r.nocturno.count} nocturno${r.nocturno.count > 1 ? 's' : ''}</span>` : '';
+    
+    let tollsHtml = '';
+    if (r.tolls.length > 0) {
+      const tollList = r.tolls.map(t => `${t.name}: $${formatMoney(t.tarifa)}`).join(' · ');
+      tollsHtml = `<div class="cost-breakdown">
+        <strong>Peajes estimados:</strong> ${tollList}<br>
+        <strong>Total peajes:</strong> $${formatMoney(r.tollCost)} por trayecto
+      </div>`;
+    }
+    
+    let horarioCompare = '';
+    if (r.diurno && r.nocturno && r.diurno.avgConsumo > 0 && r.nocturno.avgConsumo > 0) {
+      const diurnoKmL = 100 / r.diurno.avgConsumo;
+      const nocturnoKmL = 100 / r.nocturno.avgConsumo;
+      const mejor = nocturnoKmL > diurnoKmL ? 'nocturno' : 'diurno';
+      const dif = Math.abs(nocturnoKmL - diurnoKmL);
+      horarioCompare = `<div class="cost-breakdown">
+        <strong>Diurno:</strong> ${formatNumber(diurnoKmL)} km/l · <strong>Nocturno:</strong> ${formatNumber(nocturnoKmL)} km/l<br>
+        Mejor rendimiento: <strong>${mejor}</strong> (+${formatNumber(dif)} km/l)
+      </div>`;
+    }
+    
+    return `
+      <div class="frequent-route-card">
+        <div class="frequent-route-header">
+          <div>
+            <div class="frequent-route-name">${r.origen} → ${r.destino}</div>
+            <div class="frequent-route-sub">${diurnoTag}${nocturnoTag}</div>
+          </div>
+          <div class="frequent-route-count">${r.count}×</div>
+        </div>
+        <div class="frequent-route-stats">
+          <div class="frequent-stat">
+            <div class="frequent-stat-label">Distancia</div>
+            <div class="frequent-stat-value">${formatNumber(r.avgDistancia, 0)}<span class="frequent-stat-unit"> km</span></div>
+          </div>
+          <div class="frequent-stat">
+            <div class="frequent-stat-label">Rendimiento</div>
+            <div class="frequent-stat-value">${formatNumber(r.avgKmL)}<span class="frequent-stat-unit"> km/l</span></div>
+          </div>
+          <div class="frequent-stat">
+            <div class="frequent-stat-label">Costo total</div>
+            <div class="frequent-stat-value">$${formatMoney(r.totalAvgCost)}</div>
+          </div>
+        </div>
+        ${tollsHtml}
+        ${horarioCompare}
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = html;
+}
+
+function renderPeriodChart(analysis) {
+  const ctx = document.getElementById('periodChart').getContext('2d');
+  if (periodChart) periodChart.destroy();
+  
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const textColor = isDark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const gridColor = isDark ? 'rgba(84,84,88,0.3)' : 'rgba(60,60,67,0.1)';
+  
+  const lastKmL = analysis.lastWeek.consumo > 0 ? 100 / analysis.lastWeek.consumo : 0;
+  const prevKmL = analysis.prevWeek.consumo > 0 ? 100 / analysis.prevWeek.consumo : 0;
+  
+  periodChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Semana anterior', 'Última semana'],
+      datasets: [{
+        data: [prevKmL, lastKmL],
+        backgroundColor: ['rgba(142,142,147,0.4)', 'rgba(10,132,255,0.85)'],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: isDark ? 'rgba(28,28,30,0.95)' : 'rgba(255,255,255,0.98)',
+          titleColor: isDark ? '#fff' : '#000',
+          bodyColor: isDark ? 'rgba(235,235,245,0.85)' : 'rgba(60,60,67,0.85)',
+          borderColor: gridColor,
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 10,
+          displayColors: false,
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(2)} km/l`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: textColor, font: { size: 12 } } },
+        y: {
+          grid: { color: gridColor, drawBorder: false },
+          ticks: { color: textColor, font: { size: 11 }, callback: (v) => v.toFixed(0) }
+        }
+      }
+    }
+  });
+}
+
+function renderPeriodInsights(analysis) {
+  const container = document.getElementById('periodInsights');
+  if (analysis.prevWeek.count === 0) {
+    container.innerHTML = '<div class="insight info">Necesitás datos de al menos dos semanas para ver comparaciones.</div>';
+    return;
+  }
+  
+  const lastKmL = analysis.lastWeek.consumo > 0 ? 100 / analysis.lastWeek.consumo : 0;
+  const prevKmL = analysis.prevWeek.consumo > 0 ? 100 / analysis.prevWeek.consumo : 0;
+  const delta = lastKmL - prevKmL;
+  const pct = (delta / prevKmL) * 100;
+  
+  let cls = 'info', msg = '';
+  if (Math.abs(pct) < 2) {
+    msg = `Rendimiento estable: ${formatNumber(lastKmL)} km/l esta semana vs ${formatNumber(prevKmL)} km/l la anterior.`;
+  } else if (delta > 0) {
+    cls = 'good';
+    msg = `Mejoraste ${pct.toFixed(1)}%: pasaste de ${formatNumber(prevKmL)} a ${formatNumber(lastKmL)} km/l.`;
+  } else {
+    cls = 'warn';
+    msg = `Bajaste ${Math.abs(pct).toFixed(1)}%: de ${formatNumber(prevKmL)} a ${formatNumber(lastKmL)} km/l.`;
+  }
+  
+  container.innerHTML = `<div class="insight ${cls}">${msg}</div>`;
+}
+
+async function renderMap(trips, frequent) {
+  if (map) { map.remove(); map = null; }
+  const mapEl = document.getElementById('map');
+  
+  const validTrips = trips.filter(t => t.origen && t.destino);
+  if (!validTrips.length) {
+    mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--fg-tertiary);">Sin datos de ubicación</div>';
+    return;
+  }
+  
+  map = L.map('map', { zoomControl: true, attributionControl: false });
+  
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const tileUrl = isDark 
+    ? 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
+  
+  L.tileLayer(tileUrl, { maxZoom: 19, subdomains: 'abcd' }).addTo(map);
+  
+  // Map frequent routes (top 5) with real geometry via OSRM
+  const bounds = L.latLngBounds();
+  
+  // Track frequent route keys to distinguish from occasional
+  const frequentKeys = new Set();
+  frequent.forEach(fr => {
+    const k = `${fr.sample.origen[0].toFixed(3)},${fr.sample.origen[1].toFixed(3)}→${fr.sample.destino[0].toFixed(3)},${fr.sample.destino[1].toFixed(3)}`;
+    const rk = `${fr.sample.destino[0].toFixed(3)},${fr.sample.destino[1].toFixed(3)}→${fr.sample.origen[0].toFixed(3)},${fr.sample.origen[1].toFixed(3)}`;
+    frequentKeys.add(k);
+    frequentKeys.add(rk);
+  });
+  
+  // Deduplicate routes
+  const drawnKeys = new Set();
+  const routesToDraw = [];
+  
+  validTrips.forEach(t => {
+    const k = `${t.origen[0].toFixed(3)},${t.origen[1].toFixed(3)}→${t.destino[0].toFixed(3)},${t.destino[1].toFixed(3)}`;
+    if (drawnKeys.has(k)) return;
+    drawnKeys.add(k);
+    
+    bounds.extend(t.origen);
+    bounds.extend(t.destino);
+    
+    routesToDraw.push({
+      origen: t.origen,
+      destino: t.destino,
+      isFrequent: frequentKeys.has(k),
+      key: k
+    });
+  });
+  
+  map.fitBounds(bounds, { padding: [30, 30] });
+  
+  // Fetch real routes asynchronously (prioritize frequent ones)
+  const sortedRoutes = routesToDraw.sort((a, b) => (b.isFrequent ? 1 : 0) - (a.isFrequent ? 1 : 0));
+  
+  showLoading('Dibujando rutas reales sobre calles...');
+  
+  for (let i = 0; i < sortedRoutes.length; i++) {
+    const r = sortedRoutes[i];
+    try {
+      const route = await fetchRoute(r.origen, r.destino);
+      const color = r.isFrequent ? '#0a84ff' : '#ff9f0a';
+      const weight = r.isFrequent ? 4 : 2.5;
+      const opacity = r.isFrequent ? 0.85 : 0.5;
+      
+      L.polyline(route.coords, {
+        color,
+        weight,
+        opacity,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(map);
+      
+      // Small throttle to not hammer OSRM
+      if (i < sortedRoutes.length - 1) {
+        await new Promise(r => setTimeout(r, 100));
+      }
+    } catch (e) {
+      console.warn('Failed route:', e);
+    }
+  }
+  
+  // Draw points
+  const points = new Map();
+  validTrips.forEach(t => {
+    [t.origen, t.destino].forEach(p => {
+      const k = `${p[0].toFixed(3)},${p[1].toFixed(3)}`;
+      if (!points.has(k)) points.set(k, { coord: p, count: 0 });
+      points.get(k).count++;
+    });
+  });
+  
+  points.forEach(p => {
+    const radius = Math.min(5 + p.count * 0.4, 10);
+    L.circleMarker(p.coord, {
+      radius,
+      color: '#0a84ff',
+      weight: 2.5,
+      fillColor: '#fff',
+      fillOpacity: 1
+    }).addTo(map);
+  });
+  
+  // Draw tolls on map
+  TOLLS.forEach(toll => {
+    if (bounds.contains(L.latLng(toll.lat, toll.lon))) {
+      L.circleMarker([toll.lat, toll.lon], {
+        radius: 5,
+        color: '#ff3b30',
+        weight: 2,
+        fillColor: '#ff3b30',
+        fillOpacity: 0.6
+      })
+      .bindTooltip(`<strong>${toll.name}</strong><br>$${formatMoney(toll.tarifa)}`, { 
+        direction: 'top',
+        offset: [0, -5]
+      })
+      .addTo(map);
+    }
+  });
+  
+  hideLoading();
+}
+
+function renderInsights(analysis) {
+  const insights = [];
+  
+  // Frequent route insight
+  if (analysis.frequent.length > 0) {
+    const topRoute = analysis.frequent[0];
+    insights.push({
+      cls: 'info',
+      html: `Tu ruta más frecuente es <strong>${topRoute.origen} ↔ ${topRoute.destino}</strong>, realizada <strong>${topRoute.count} veces</strong>. Costo promedio por trayecto: $${formatMoney(topRoute.totalAvgCost)} (combustible + peajes).`
+    });
+  }
+  
+  // Day vs night comparison for frequent routes
+  for (const r of analysis.frequent.slice(0, 2)) {
+    if (r.diurno && r.nocturno && r.diurno.avgConsumo > 0 && r.nocturno.avgConsumo > 0) {
+      const diurnoKmL = 100 / r.diurno.avgConsumo;
+      const nocturnoKmL = 100 / r.nocturno.avgConsumo;
+      const dif = nocturnoKmL - diurnoKmL;
+      if (Math.abs(dif) > 0.5) {
+        const mejor = dif > 0 ? 'nocturno' : 'diurno';
+        insights.push({
+          cls: 'good',
+          html: `En <strong>${r.origen} ↔ ${r.destino}</strong>, los viajes <strong>${mejor}s</strong> son más eficientes por ${formatNumber(Math.abs(dif))} km/l — considera viajar más en ese horario si es posible.`
+        });
+        break;
+      }
+    }
+  }
+  
+  // Best segment
+  const validSegs = Object.entries(analysis.segments).filter(([_, s]) => s.count > 0);
+  if (validSegs.length > 1) {
+    const best = validSegs.reduce((a, b) => b[1].avgKmL > a[1].avgKmL ? b : a);
+    const worst = validSegs.reduce((a, b) => (b[1].avgKmL > 0 && b[1].avgKmL < a[1].avgKmL) ? b : a);
+    const diff = best[1].avgKmL - worst[1].avgKmL;
+    const labels = { mini: 'Mini', corto: 'Cortos', medio: 'Medios', largo: 'Largos' };
+    insights.push({
+      cls: 'info',
+      html: `<strong>${labels[best[0]]} son tu mejor rendimiento</strong> con ${formatNumber(best[1].avgKmL)} km/l, mientras ${labels[worst[0]].toLowerCase()} promedian ${formatNumber(worst[1].avgKmL)} km/l.`
+    });
+  }
+  
+  // Target
+  const target = 17.2;
+  if (analysis.avgKmL < target) {
+    const gap = target - analysis.avgKmL;
+    const gapPct = (gap / target) * 100;
+    insights.push({
+      cls: gapPct > 20 ? 'warn' : 'info',
+      html: `Rendimiento promedio: <strong>${formatNumber(analysis.avgKmL)} km/l</strong>. Meta teórica: ${target} km/l. Margen: ${gapPct.toFixed(1)}%.`
+    });
+  }
+  
+  // Short trips
+  if (analysis.segments.mini.count > 5) {
+    insights.push({
+      cls: 'warn',
+      html: `Tenés <strong>${analysis.segments.mini.count} viajes de menos de 2 km</strong>. En esas distancias el híbrido no optimiza — agrupá diligencias cuando puedas.`
+    });
+  }
+  
+  document.getElementById('insights').innerHTML = insights.map(i => 
+    `<div class="insight ${i.cls}">${i.html}</div>`
+  ).join('');
+}
+
+// ====== UI ======
+
+function showLoading(text = 'Cargando...') {
+  document.getElementById('loadingText').textContent = text;
+  document.getElementById('loadingOverlay').classList.add('visible');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('visible');
+}
+
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+
+['dragenter', 'dragover'].forEach(evt => {
+  uploadZone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+});
+
+['dragleave', 'drop'].forEach(evt => {
+  uploadZone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+  });
+});
+
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) handleFile(file);
+});
+
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result;
+      const rows = parseCSV(text);
+      if (!rows.length) {
+        toast('No se encontraron datos en el CSV');
+        return;
+      }
+      
+      const newTrips = rows.map(normalizeTrip).filter(t => t.fecha && !isNaN(t.timestamp));
+      const existing = loadTrips();
+      const merged = mergeTrips(existing, newTrips);
+      const added = merged.length - existing.length;
+      
+      saveTrips(merged);
+      
+      const uploads = parseInt(localStorage.getItem(STORAGE_KEY + '_uploads') || '0') + 1;
+      localStorage.setItem(STORAGE_KEY + '_uploads', String(uploads));
+      
+      toast(`${added > 0 ? added + ' viajes nuevos' : 'Todos los viajes ya existían'} · Total: ${merged.length}`);
+      
+      const analysis = analyzeTrips(merged);
+      render(analysis, merged);
+    } catch (err) {
+      console.error(err);
+      toast('Error al procesar el archivo');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  if (confirm('¿Borrar todos los datos del histórico? Esta acción no se puede deshacer.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY + '_uploads');
+    localStorage.removeItem(ROUTES_CACHE_KEY);
+    location.reload();
+  }
+});
+
+document.getElementById('btnExport').addEventListener('click', () => {
+  const trips = loadTrips();
+  if (!trips.length) {
+    toast('No hay datos para exportar');
+    return;
+  }
+  const blob = new Blob([JSON.stringify(trips, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `peugeot-historico-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Histórico exportado');
+});
+
+document.getElementById('btnReloadMap').addEventListener('click', () => {
+  localStorage.removeItem(ROUTES_CACHE_KEY);
+  const trips = loadTrips();
+  if (trips.length > 0) {
+    const analysis = analyzeTrips(trips);
+    renderMap(trips, analysis.frequent);
+    toast('Cache de rutas limpiado, redibujando...');
+  }
+});
+
+// Initial render
+(function init() {
+  const trips = loadTrips();
+  if (trips.length > 0) {
+    const analysis = analyzeTrips(trips);
+    render(analysis, trips);
+  }
+})();
+</script>
+
+</body>
+</html>
